@@ -782,3 +782,5 @@ $RECYCLE.BIN/
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 
 # End of https://www.gitignore.io/api/rider,linux,macos,csharp,windows,jetbrains,powershell,dotnetcore,visualstudio,jetbrains+all
+
+appsettings.*.json

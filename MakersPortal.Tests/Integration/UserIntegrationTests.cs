@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,12 +14,16 @@ namespace MakersPortal.Tests.Integration
         {
             _integrationTestsFixture = integrationTestsFixture;
         }
-        
+
         [Fact]
         public async Task EditPersonalDetails_NoCondition_Success()
         {
-            HttpResponseMessage response = await _integrationTestsFixture.Client.GetAsync("ddd");
+            _integrationTestsFixture.Client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _integrationTestsFixture.GetJwt());
+            HttpResponseMessage response = await _integrationTestsFixture.Client.GetAsync("/Index");
             response.EnsureSuccessStatusCode();
+
+            Assert.Equal("Hello, World.", await response.Content.ReadAsStringAsync());
         }
     }
 }
