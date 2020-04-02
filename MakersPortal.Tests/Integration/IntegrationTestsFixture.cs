@@ -26,7 +26,7 @@ namespace MakersPortal.Tests.Integration
 
         public IntegrationTestsFixture()
         {
-            _server = new TestServer(new WebHostBuilder().UseStartup<Startup>()
+           /* _server = new TestServer(new WebHostBuilder().UseStartup<Startup>()
                 .ConfigureServices(services =>
                 {
                     services.AddAuthentication().AddJwtBearer("Testing", options =>
@@ -59,6 +59,7 @@ namespace MakersPortal.Tests.Integration
                 }).ConfigureAppConfiguration(app => { IdentityModelEventSource.ShowPII = true; }));
 
             Client = _server.CreateClient();
+            */
         }
 
         public string GetJwt(string sub = null, string givenName = null, string familyName = null, string email = null)
@@ -101,8 +102,8 @@ namespace MakersPortal.Tests.Integration
 
         public void Dispose()
         {
-            Client.Dispose();
-            _server.Dispose();
+           /* Client.Dispose();
+            _server.Dispose();*/
         }
     }
 }

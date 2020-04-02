@@ -7,10 +7,14 @@ namespace MakersPortal.Infrastructure
 {
     public class MakersPortalDbContext : IdentityDbContext<ApplicationUser>
     {
+        public MakersPortalDbContext() : base()
+        {
+        }
+
         public MakersPortalDbContext(DbContextOptions<MakersPortalDbContext> dbContextOptions) : base(dbContextOptions)
         {
         }
-        
+
         public virtual DbSet<MakerSpace> MakerSpaces { get; set; }
         public virtual DbSet<Totem> Totems { get; set; }
         public virtual DbSet<BaseActivity> BaseActivities { get; set; }
@@ -40,9 +44,9 @@ namespace MakersPortal.Infrastructure
                 .HasOne(p => p.EndTotem)
                 .WithMany()
                 .HasForeignKey(p => p.EndTotemId);
-                
+
             #endregion
-            
+
             base.OnModelCreating(builder);
         }
     }
