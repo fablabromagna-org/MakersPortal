@@ -43,7 +43,7 @@ namespace MakersPortal.WebApi
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.TryAddSingleton(Configuration);
-            services.TryAddScoped<IUserService, UserService>();
+            //services.TryAddScoped<IUserService, UserService>();
             /*    services.TryAddSingleton<UserStore<ApplicationUser>>();
                 services.TryAddSingleton<UserManager<ApplicationUser>>();
                 services.TryAddSingleton<MakersPortalDbContext>(); Configuration.GetSection("IdentityProviders").Get<IEnumerable<IdentityProviderDto>>()*/
@@ -63,8 +63,8 @@ namespace MakersPortal.WebApi
                 options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             });
 
-            List<IdentityProviderDto> identityProviders =
-                Configuration.GetSection("IdentityProviders").Get<List<IdentityProviderDto>>();
+            IEnumerable<IdentityProviderDto> identityProviders =
+                Configuration.GetSection("IdentityProviders").Get<IdentityProviderDto[]>();
             /*
             foreach (IdentityProviderDto identityProvider in identityProviders)
             {

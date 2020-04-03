@@ -7,5 +7,7 @@
         public string Audience { get; set; }
 
         public string Issuer { get; set; }
+
+        public bool SkipValidation { get; set; } = false;
     }
 }

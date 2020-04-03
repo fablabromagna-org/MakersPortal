@@ -14,9 +14,9 @@ namespace MakersPortal.WebApi.Controllers
     {
         private IUserService _userService;
 
-        public AccountController(IUserService userService)
+        public AccountController(/* IUserService userService */ )
         {
-            _userService = userService;
+           // _userService = userService;
         }
 
         [AllowAnonymous]
@@ -39,6 +39,15 @@ namespace MakersPortal.WebApi.Controllers
             return Ok(new JwtTokenDto
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
+            });
+        }
+        
+        [Route("/Account")]
+        public IActionResult Index()
+        {
+            return Ok(new ContentResult()
+            {
+                Content = "Hello, World."
             });
         }
     }
