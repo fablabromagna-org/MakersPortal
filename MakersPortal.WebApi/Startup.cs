@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MakersPortal.Core.Dtos.Configuration;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.WebApi
 {
@@ -42,7 +46,7 @@ namespace MakersPortal.WebApi
             #region Dependency Injection
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.TryAddSingleton(Configuration);
+            //    services.TryAddSingleton(Configuration);
             //services.TryAddScoped<IUserService, UserService>();
             /*    services.TryAddSingleton<UserStore<ApplicationUser>>();
                 services.TryAddSingleton<UserManager<ApplicationUser>>();
@@ -56,16 +60,16 @@ namespace MakersPortal.WebApi
                 .AddEntityFrameworkStores<MakersPortalDbContext>()
                 .AddDefaultTokenProviders();
 
+            IEnumerable<IdentityProviderDto> identityProviders =
+                Configuration.GetSection("IdentityProviders").Get<IdentityProviderDto[]>();
+
             var authenticationBuilder = services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
             });
-
-            IEnumerable<IdentityProviderDto> identityProviders =
-                Configuration.GetSection("IdentityProviders").Get<IdentityProviderDto[]>();
-            /*
+/*
             foreach (IdentityProviderDto identityProvider in identityProviders)
             {
                 authenticationBuilder.AddJwtBearer(identityProvider.Name, options =>
@@ -80,11 +84,6 @@ namespace MakersPortal.WebApi
                     options.Authority = identityProvider.Issuer;
 
                     options.SaveToken = true;
-
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = TokenValidationHandler
-                    };
                 });
             }
 
@@ -97,8 +96,7 @@ namespace MakersPortal.WebApi
 
                 options.AddPolicy("protectedScope", policy => { policy.RequireClaim("profile", "email", "openid"); });
             });
-            */
-
+*/
             #endregion
 
             #region Automapper
@@ -122,14 +120,20 @@ namespace MakersPortal.WebApi
             }
 
             app.UseHttpsRedirection();
-
+            
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "v1/{controller=Home}/{action=Index}/{id?}");
+            });
         }
+
 /*
         private static Task TokenValidationHandler(TokenValidatedContext context)
         {
