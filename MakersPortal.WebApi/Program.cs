@@ -4,14 +4,23 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace MakersPortal.WebApi
 {
     public class Program
     {
+        private static KeyVaultClient _keyVaultClient;
+
         public static void Main(string[] args)
         {
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+            _keyVaultClient = new KeyVaultClient(
+                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider
+                    .KeyVaultTokenCallback));
+            
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -25,20 +34,16 @@ namespace MakersPortal.WebApi
 
                         if (keyVaultEndpoint == null)
                             return;
-                        
-                        var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
-                        var keyVaultClient =
-                            new KeyVaultClient(
-                                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider
-                                    .KeyVaultTokenCallback));
-
-                        builder.AddAzureKeyVault(keyVaultEndpoint, keyVaultClient, new DefaultKeyVaultSecretManager());
+                        builder.AddAzureKeyVault(keyVaultEndpoint, _keyVaultClient, new DefaultKeyVaultSecretManager());
                     });
 
                     webBuilder.ConfigureKestrel(options => options.AddServerHeader = false);
 
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().ConfigureServices(collection =>
+                        {
+                            collection.AddSingleton<IKeyVaultClient>(_keyVaultClient);
+                        });
                 });
     }
 }

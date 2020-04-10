@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
+using System.Threading.Tasks;
+using AutoMapper;
 using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.KeyVault.WebKey;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
@@ -17,10 +19,17 @@ namespace MakersPortal.WebApi.Controllers
     public class AuthController : Controller
     {
         private IUserService _userService;
+        private readonly IKeyManager _keyManager;
+        private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(/* IUserService userService */ )
+        public AuthController(IKeyManager keyManager, IMapper mapper,
+            IConfiguration configuration /* IUserService userService */)
         {
-           // _userService = userService;
+            // _userService = userService;
+            _keyManager = keyManager;
+            _mapper = mapper;
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -45,34 +54,23 @@ namespace MakersPortal.WebApi.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
             });
         }
-        
+
         [HttpGet]
         public string Index()
         {
             return "Hello, World.";
         }
-        
+
         [HttpGet]
         [Route("~/.well-known/jwks.json")]
         [AllowAnonymous]
-        public IActionResult WellKnown()
+        public async Task<IActionResult> WellKnown()
         {
-            var key = RSA.Create(2048);
-            var parameters = key.ExportParameters(false);
-            
-            var temp = new JwkDto
-            {
-                E = Convert.ToBase64String(parameters.Exponent),
-                Kty = JsonWebKeyType.Rsa,
-                Alg = JsonWebKeySignatureAlgorithm.RS256,
-                Use = JsonWebKeyUseNames.Sig,
-                N =  Convert.ToBase64String(parameters.Modulus),
-                Kid = Guid.NewGuid().ToString()
-            };
-            
+            JwkDto jwk = await _keyManager.GetPublicFromName("jwt");
+
             return Ok(new JwksDto
             {
-                Keys = new [] { temp }
+                Keys = new[] {jwk}
             });
         }
     }

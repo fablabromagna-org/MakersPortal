@@ -9,8 +9,6 @@ namespace MakersPortal.Infrastructure
     public abstract class DesignTimeDbContext<TContext> : IDesignTimeDbContextFactory<TContext>
         where TContext : DbContext
     {
-        private IDesignTimeDbContextFactory<TContext> _designTimeDbContextFactoryImplementation;
-
         public TContext CreateDbContext(string[] args)
         {
             return Create(
