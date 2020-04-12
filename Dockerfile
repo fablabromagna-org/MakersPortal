@@ -1,5 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1.201-alpine3.11 AS build-env
 WORKDIR /app
+EXPOSE 80
 
 # Copy csproj and restore as distinct layers
 COPY ./MakersPortal.sln ./MakersPortal.sln

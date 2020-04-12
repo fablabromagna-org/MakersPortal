@@ -17,8 +17,9 @@ namespace MakersPortal.Infrastructure.Services
 {
     // ToDo: Find a way to test IKeyManager interface
     // IKeyManager is a wrapper for Azure Key Vault and,
-    // when in testing environment, for secret manager
-    // Beside it's own nature, it's difficult to test in a public environment
+    // when in the testing environment, for secret manager
+    // Due its own nature, it's difficult to test
+    // Keeping a To do but excluding from code coverage
     [ExcludeFromCodeCoverage]
     public class KeyManager : IKeyManager
     {
@@ -33,6 +34,7 @@ namespace MakersPortal.Infrastructure.Services
             _mapper = mapper;
         }
 
+        /// <inheritdoc cref="IKeyManager"/>
         public async Task<JwkDto> GetPublicFromName(string name)
         {
             string keyVaultEndopoint = Environment.GetEnvironmentVariable("KEYVAULT_ENDPOINT");

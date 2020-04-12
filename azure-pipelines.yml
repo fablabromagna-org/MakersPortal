@@ -39,5 +39,10 @@ steps:
       repository: 'edosavini/makers-portal'
       command: 'buildAndPush'
       Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-      tags: '$(Build.SourceBranchName).$(Build.BuildId)'
+      tags: |
+        $(Build.SourceBranchName)-$(Build.BuildId)
+        0
+        0.1
+        0.1.$(Build.BuildId)
+        latest
     displayName: 'Docker build and push'
