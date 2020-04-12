@@ -1,16 +1,11 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
-using AutoMapper;
 using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.KeyVault.WebKey;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
 namespace MakersPortal.WebApi.Controllers
 {
@@ -20,16 +15,11 @@ namespace MakersPortal.WebApi.Controllers
     {
         private IUserService _userService;
         private readonly IKeyManager _keyManager;
-        private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
 
-        public AuthController(IKeyManager keyManager, IMapper mapper,
-            IConfiguration configuration /* IUserService userService */)
+        public AuthController(IKeyManager keyManager /* IUserService userService */)
         {
             // _userService = userService;
             _keyManager = keyManager;
-            _mapper = mapper;
-            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -53,12 +43,6 @@ namespace MakersPortal.WebApi.Controllers
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
             });
-        }
-
-        [HttpGet]
-        public string Index()
-        {
-            return "Hello, World.";
         }
 
         [HttpGet]

@@ -11,8 +11,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -22,14 +25,29 @@ namespace MakersPortal.WebApi
 {
     public class Startup
     {
+        private static KeyVaultClient _keyVaultClient;
+
         public Startup(IHostEnvironment env)
         {
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+            _keyVaultClient = new KeyVaultClient(
+                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider
+                    .KeyVaultTokenCallback));
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
                     optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
+
+            var keyVaultEndpoint = Environment.GetEnvironmentVariable("KEYVAULT_ENDPOINT");
+
+            if (keyVaultEndpoint != null)
+            {
+                builder.AddAzureKeyVault(keyVaultEndpoint, _keyVaultClient, new DefaultKeyVaultSecretManager());
+            }
 
             Configuration = builder.Build();
         }
@@ -46,6 +64,7 @@ namespace MakersPortal.WebApi
             #region Dependency Injection
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IKeyVaultClient>(_keyVaultClient);
             services.AddSingleton<IKeyManager, KeyManager>();
             //    services.TryAddSingleton(Configuration);
             //services.TryAddScoped<IUserService, UserService>();

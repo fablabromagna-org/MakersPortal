@@ -5,12 +5,9 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using MakersPortal.WebApi;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,17 +15,17 @@ namespace MakersPortal.Tests.Integration
 {
     public class IntegrationTestsFixture : IDisposable
     {
-        public HttpClient Client;
-        private readonly TestServer _server;
+        public readonly HttpClient Client;
+        public readonly TestServer Server;
 
         // Random (and not secure) Jwt security key
-        // For testing purpose only.
+        // For testing purpose only
         private readonly SymmetricSecurityKey _jwtSecurityKey =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()));
 
         public IntegrationTestsFixture()
         {
-            _server = new TestServer(new WebHostBuilder().UseStartup<Startup>().ConfigureAppConfiguration((context,
+            Server = new TestServer(new WebHostBuilder().UseStartup<Startup>().ConfigureAppConfiguration((context,
                 builder) =>
             {
                 var testIdp = new Dictionary<string, string>()
@@ -43,7 +40,7 @@ namespace MakersPortal.Tests.Integration
                 IdentityModelEventSource.ShowPII = true;
             }));
 
-            Client = _server.CreateClient();
+            Client = Server.CreateClient();
 
             /* _server = new TestServer(new WebHostBuilder().UseStartup<Startup>()
                  .ConfigureServices(services =>
@@ -122,7 +119,7 @@ namespace MakersPortal.Tests.Integration
         public void Dispose()
         {
             Client.Dispose();
-            _server.Dispose();
+            Server.Dispose();
         }
     }
 }

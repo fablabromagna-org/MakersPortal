@@ -1,0 +1,43 @@
+trigger:
+  - master
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      version: '3.1.x'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
+      noCache: true
+    displayName: 'Restore'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+    displayName: 'Build'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+    displayName: 'Tests'
+
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'Docker hub'
+      repository: 'edosavini/makers-portal'
+      command: 'buildAndPush'
+      Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+      tags: '$(Build.SourceBranchName).$(Build.BuildId)'
+    displayName: 'Docker build and push'

@@ -16,14 +16,16 @@ namespace MakersPortal.Tests.Integration
         {
             _integrationTestsFixture = integrationTestsFixture;
         }
-
+/*
         [Fact]
         public async Task EditPersonalDetails_NoCondition_Success()
         {
            /* _integrationTestsFixture.Client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _integrationTestsFixture.GetJwt());*/
+                new AuthenticationHeaderValue("Bearer", _integrationTestsFixture.GetJwt());
             HttpResponseMessage response = await _integrationTestsFixture.Client.GetAsync("/Account");
             response.EnsureSuccessStatusCode();
         }
+        
+        */
     }
 }
