@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Services;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Azure.KeyVault.WebKey;
@@ -53,7 +54,18 @@ namespace MakersPortal.Infrastructure.Services
                 await _keyVaultClient.GetKeyWithHttpMessagesAsync(keyVaultEndopoint, name,
                     _configuration[$"Keys:{name}:Version"]);
 
-            return _mapper.Map<JwkDto>(keyBundleResponse.Body.Key);
+            var key = keyBundleResponse.Body.Key;
+            JwkDto jwk = new JwkDto
+            {
+                Kid = _configuration[$"Keys:{name}:Kid"],
+                Alg = JsonWebKeySignatureAlgorithm.RS256,
+                Use = JsonWebKeyUseNames.Sig,
+                Kty = key.Kty,
+                E = WebEncoders.Base64UrlEncode(key.E),
+                N = WebEncoders.Base64UrlEncode(key.N)
+            };
+
+            return jwk;
         }
 
         private JwkDto GetKeyFromLocalEnvironment(string name)
