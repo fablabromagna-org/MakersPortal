@@ -29,7 +29,7 @@ namespace MakersPortal.WebApi
     {
         private static KeyVaultClient _keyVaultClient;
 
-        public Startup(IHostEnvironment env)
+        public Startup(IHostEnvironment env, IConfiguration configuration)
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
@@ -38,6 +38,7 @@ namespace MakersPortal.WebApi
                     .KeyVaultTokenCallback));
 
             var builder = new ConfigurationBuilder()
+                .AddConfiguration(configuration) // We need to override the configuration DI
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"conf{Path.DirectorySeparatorChar}appsettings.json", optional: true,
