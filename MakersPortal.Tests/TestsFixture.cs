@@ -11,9 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace MakersPortal.Tests.Integration
+namespace MakersPortal.Tests
 {
-    public class IntegrationTestsFixture : IDisposable
+    public class TestsFixture : IDisposable
     {
         public readonly HttpClient Client;
         public readonly TestServer Server;
@@ -23,7 +23,7 @@ namespace MakersPortal.Tests.Integration
         private readonly SymmetricSecurityKey _jwtSecurityKey =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()));
 
-        public IntegrationTestsFixture()
+        public TestsFixture()
         {
             Server = new TestServer(new WebHostBuilder().UseStartup<Startup>().ConfigureAppConfiguration((context,
                 builder) =>
@@ -32,50 +32,16 @@ namespace MakersPortal.Tests.Integration
                 {
                     {"IdentityProviders:0:Name", "Testing"},
                     {"IdentityProviders:0:Issuer", "https://example.com"},
-                    {"IdentityProviders:0:Audience","https://example.com"}
+                    {"IdentityProviders:0:Audience", "https://example.com"},
+                    {"IdentityProviders:0:SkipValidation", "true"}
                 };
 
                 builder.AddInMemoryCollection(testIdp);
-                
+
                 IdentityModelEventSource.ShowPII = true;
             }));
 
             Client = Server.CreateClient();
-
-            /* _server = new TestServer(new WebHostBuilder().UseStartup<Startup>()
-                 .ConfigureServices(services =>
-                 {
-                     services.AddAuthentication().AddJwtBearer("Testing", options =>
-                     {
-                         // Disabling every validation, checking Jwt tokens is not the purpose of this project
-                         // We need only to create a fake authenticated user
-                         options.TokenValidationParameters = new TokenValidationParameters
-                         {
-                             ValidateIssuer = false,
-                             ValidateAudience = false,
-                             ValidateIssuerSigningKey = false,
-                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("TY7qMpj9WJYua0BU")),
-                             ValidateLifetime = false,
-                             ValidateActor = false,
-                             RequireExpirationTime = false,
-                             RequireSignedTokens = false
-                         };
- 
-                         options.BackchannelHttpHandler = _server.CreateHandler();
-                         options.Audience = "example.com";
-                     });
- 
-                     services.PostConfigure<AuthorizationOptions>(options =>
-                     {
-                         options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                             .Combine(options.DefaultPolicy)
-                             .AddAuthenticationSchemes("Testing")
-                             .Build();
-                     });
-                 }).ConfigureAppConfiguration(app => { IdentityModelEventSource.ShowPII = true; }));
- 
-             Client = _server.CreateClient();
-             */
         }
 
         public string GetJwt(string sub = null, string givenName = null, string familyName = null, string email = null)

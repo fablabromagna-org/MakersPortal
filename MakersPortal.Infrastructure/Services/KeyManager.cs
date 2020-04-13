@@ -26,59 +26,39 @@ namespace MakersPortal.Infrastructure.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IKeyVaultClient _keyVaultClient;
-        private readonly IMapper _mapper;
 
-        public KeyManager(IConfiguration configuration, IKeyVaultClient keyVaultClient, IMapper mapper)
+        public KeyManager(IConfiguration configuration, IKeyVaultClient keyVaultClient)
         {
             _configuration = configuration;
             _keyVaultClient = keyVaultClient;
-            _mapper = mapper;
+        }
+        
+        /// <inheritdoc cref="IKeyManager"/>
+        public async Task<RsaSecurityKey> GetSecurityKeyFromName(string name)
+        {
+            return new RsaSecurityKey(await GetKey(name));
         }
 
-        /// <inheritdoc cref="IKeyManager"/>
-        public async Task<JwkDto> GetPublicFromName(string name)
+        private async Task<RSA> GetKey(string name)
         {
             string keyVaultEndopoint = Environment.GetEnvironmentVariable("KEYVAULT_ENDPOINT");
-
+            RSA key;
+            
             if (keyVaultEndopoint != null)
             {
-                return await GetKeyFromAzureKeyVault(name, keyVaultEndopoint);
+                AzureOperationResponse<KeyBundle> keyBundleResponse =
+                    await _keyVaultClient.GetKeyWithHttpMessagesAsync(keyVaultEndopoint, name,
+                        _configuration[$"Keys:{name}:Version"]);
+
+                key = keyBundleResponse.Body.Key.ToRSA();
+            }
+            else
+            {
+                key = RSA.Create();
+                key.ImportRSAPrivateKey(Convert.FromBase64String(_configuration[$"Keys:{name}:Private"]), out _);
             }
 
-            return GetKeyFromLocalEnvironment(name);
-        }
-
-        private async Task<JwkDto> GetKeyFromAzureKeyVault(string name, string keyVaultEndopoint)
-        {
-            AzureOperationResponse<KeyBundle> keyBundleResponse =
-                await _keyVaultClient.GetKeyWithHttpMessagesAsync(keyVaultEndopoint, name,
-                    _configuration[$"Keys:{name}:Version"]);
-
-            var key = keyBundleResponse.Body.Key;
-            JwkDto jwk = new JwkDto
-            {
-                Kid = _configuration[$"Keys:{name}:Kid"],
-                Alg = JsonWebKeySignatureAlgorithm.RS256,
-                Use = JsonWebKeyUseNames.Sig,
-                Kty = key.Kty,
-                E = WebEncoders.Base64UrlEncode(key.E),
-                N = WebEncoders.Base64UrlEncode(key.N)
-            };
-
-            return jwk;
-        }
-
-        private JwkDto GetKeyFromLocalEnvironment(string name)
-        {
-            var rsa = RSA.Create();
-            rsa.ImportRSAPrivateKey(Convert.FromBase64String(_configuration[$"Keys:{name}:Private"]), out _);
-
-            JsonWebKey jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(new RsaSecurityKey(rsa));
-            jwk.Kid = _configuration[$"Keys:{name}:Kid"];
-            jwk.Alg = JsonWebKeySignatureAlgorithm.RS256;
-            jwk.Use = JsonWebKeyUseNames.Sig;
-
-            return _mapper.Map<JwkDto>(jwk);
+            return key;
         }
     }
 }

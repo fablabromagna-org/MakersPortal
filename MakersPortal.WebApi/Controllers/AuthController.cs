@@ -13,12 +13,12 @@ namespace MakersPortal.WebApi.Controllers
     [Route("[controller]")]
     public class AuthController : Controller
     {
-        private IUserService _userService;
+        private readonly IUserService _userService;
         private readonly IKeyManager _keyManager;
 
         public AuthController(IKeyManager keyManager /* IUserService userService */)
         {
-            // _userService = userService;
+            _userService = null;
             _keyManager = keyManager;
         }
 
@@ -46,15 +46,12 @@ namespace MakersPortal.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("~/.well-known/jwks.json")]
-        [AllowAnonymous]
-        public async Task<IActionResult> WellKnown()
+        [Authorize]
+        public IActionResult Index()
         {
-            JwkDto jwk = await _keyManager.GetPublicFromName("jwt");
-
-            return Ok(new JwksDto
+            return Ok(new ContentResult
             {
-                Keys = new[] {jwk}
+                Content = "Hello, World."
             });
         }
     }

@@ -8,13 +8,13 @@ using Xunit;
 
 namespace MakersPortal.Tests.Integration
 {
-    public class UserIntegrationTests : IClassFixture<IntegrationTestsFixture>
+    public class UserIntegrationTests : IClassFixture<TestsFixture>
     {
-        private readonly IntegrationTestsFixture _integrationTestsFixture;
+        private readonly TestsFixture _testsFixture;
 
-        public UserIntegrationTests(IntegrationTestsFixture integrationTestsFixture)
+        public UserIntegrationTests(TestsFixture testsFixture)
         {
-            _integrationTestsFixture = integrationTestsFixture;
+            _testsFixture = testsFixture;
         }
 /*
         [Fact]

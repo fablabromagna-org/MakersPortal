@@ -4,19 +4,19 @@ using Xunit;
 
 namespace MakersPortal.Tests.Integration
 {
-    public class KeyManagerIntegrationTests : IClassFixture<IntegrationTestsFixture>
+    public class KeyManagerIntegrationTests : IClassFixture<TestsFixture>
     {
-        private readonly IntegrationTestsFixture _integrationTestsFixture;
+        private readonly TestsFixture _testsFixture;
 
-        public KeyManagerIntegrationTests(IntegrationTestsFixture integrationTestsFixture)
+        public KeyManagerIntegrationTests(TestsFixture testsFixture)
         {
-            _integrationTestsFixture = integrationTestsFixture;
+            _testsFixture = testsFixture;
         }
 
         [Fact]
         public void EnsureKeyManagerIsRegistered_Success()
         {
-            IKeyManager keyManager = _integrationTestsFixture.Server.Services.GetService<IKeyManager>();
+            IKeyManager keyManager = _testsFixture.Server.Services.GetService<IKeyManager>();
             Assert.NotNull(keyManager);
         }
     }

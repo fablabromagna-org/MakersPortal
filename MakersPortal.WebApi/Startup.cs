@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using AutoMapper;
 using MakersPortal.Core.Dtos.Configuration;
@@ -22,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.WebApi
 {
@@ -38,7 +38,7 @@ namespace MakersPortal.WebApi
                     .KeyVaultTokenCallback));
 
             var builder = new ConfigurationBuilder()
-                .AddConfiguration(configuration) // We need to override the configuration DI
+                .AddConfiguration(configuration) // We need to override the DI configuration
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"conf{Path.DirectorySeparatorChar}appsettings.json", optional: true,
@@ -68,9 +68,10 @@ namespace MakersPortal.WebApi
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(provider => Configuration);
+            services.AddSingleton(Configuration.GetSection("JwtIssuer").Get<JwtIssuerDto>());
             services.AddSingleton<IKeyVaultClient>(_keyVaultClient);
             services.AddSingleton<IKeyManager, KeyManager>();
-            
+
             #endregion
 
             #region Identity Providers
@@ -79,16 +80,15 @@ namespace MakersPortal.WebApi
                 .AddEntityFrameworkStores<MakersPortalDbContext>()
                 .AddDefaultTokenProviders();
 
-            IEnumerable<IdentityProviderDto> identityProviders =
-                Configuration.GetSection("IdentityProviders").Get<IdentityProviderDto[]>();
-
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            });
+            }).AddJwtBearer();
             
+            services.ConfigureOptions<ConfigureJwtBearerOptions>();
+
             #endregion
 
             services.Configure<ForwardedHeadersOptions>(options =>

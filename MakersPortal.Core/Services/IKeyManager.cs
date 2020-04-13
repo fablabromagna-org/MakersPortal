@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MakersPortal.Core.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.Core.Services
 {
@@ -10,6 +11,6 @@ namespace MakersPortal.Core.Services
         /// </summary>
         /// <param name="name">The key name</param>
         /// <returns>The public key</returns>
-        public Task<JwkDto> GetPublicFromName(string name);
+        public Task<RsaSecurityKey> GetSecurityKeyFromName(string name);
     }
 }
