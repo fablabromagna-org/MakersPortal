@@ -2,17 +2,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using AutoMapper;
-using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Services;
-using Microsoft.AspNetCore.WebUtilities;
+using MakersPortal.Infrastructure.Options;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
-using Microsoft.Azure.KeyVault.WebKey;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Rest.Azure;
-using JsonWebKey = Microsoft.IdentityModel.Tokens.JsonWebKey;
 
 namespace MakersPortal.Infrastructure.Services
 {
@@ -24,12 +21,12 @@ namespace MakersPortal.Infrastructure.Services
     [ExcludeFromCodeCoverage]
     public class KeyManager : IKeyManager
     {
-        private readonly IConfiguration _configuration;
+        private readonly KeysOptions _keys;
         private readonly IKeyVaultClient _keyVaultClient;
 
-        public KeyManager(IConfiguration configuration, IKeyVaultClient keyVaultClient)
+        public KeyManager(IOptions<KeysOptions> keys, IKeyVaultClient keyVaultClient)
         {
-            _configuration = configuration;
+            _keys = keys.Value;
             _keyVaultClient = keyVaultClient;
         }
         
@@ -48,14 +45,14 @@ namespace MakersPortal.Infrastructure.Services
             {
                 AzureOperationResponse<KeyBundle> keyBundleResponse =
                     await _keyVaultClient.GetKeyWithHttpMessagesAsync(keyVaultEndopoint, name,
-                        _configuration[$"Keys:{name}:Version"]);
+                        _keys[name].Version);
 
                 key = keyBundleResponse.Body.Key.ToRSA();
             }
             else
             {
                 key = RSA.Create();
-                key.ImportRSAPrivateKey(Convert.FromBase64String(_configuration[$"Keys:{name}:Private"]), out _);
+                key.ImportRSAPrivateKey(Convert.FromBase64String(_keys[name].Private), out _);
             }
 
             return key;

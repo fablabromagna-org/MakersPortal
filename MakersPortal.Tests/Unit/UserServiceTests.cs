@@ -1,31 +1,42 @@
-using MakersPortal.Core.Services;
-using MakersPortal.WebApi;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
+using MakersPortal.Core.Dtos;
+using MakersPortal.Core.Models;
+using MakersPortal.Infrastructure.Services;
 using Xunit;
 
 namespace MakersPortal.Tests.Unit
 {
-    public class UserServiceTests
+    public class UserServiceTests : IClassFixture<TestsFixture>
     {
-       // private readonly TestServer _server;
+        private readonly TestsFixture _fixture;
+        private readonly UserService _userService;
 
-        public UserServiceTests()
+        public UserServiceTests(TestsFixture fixture)
         {
-            //_server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
+            _fixture = fixture;
+            _userService = new UserService(new[]
+            {
+                new IdentityProvider
+                {
+                    Audience = "https://client.example.com",
+                    Issuer = "https://account.example.com",
+                    Name = "sample-idp",
+                    SkipValidation = true
+                }
+            });
         }
-        
-        /*
-        
+
         [Fact]
-        public void Service_CheckExistanceOfUserService_Success()
+        public void ValidateExternalJwtToken_Success_WhenTokenIsValid()
         {
-            IUserService userService =_server.Services.GetService<IUserService>();
-            Assert.NotNull(userService);
+            var jwtDto = new JwtTokenDto
+            {
+                Token = _fixture.GetJwt()
+            };
+
+            Assert.True(_userService.ValidateExternalJwtToken(jwtDto, out var validatedToken));
+            
+            // It's useless checking the result, if we will do that we will test Microsoft's validator
+            Assert.NotNull(validatedToken);
         }
-        
-        */
-        
     }
 }

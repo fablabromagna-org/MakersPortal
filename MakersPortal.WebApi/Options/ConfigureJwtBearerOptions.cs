@@ -1,20 +1,20 @@
-﻿using MakersPortal.Core.Dtos.Configuration;
-using MakersPortal.Core.Services;
+﻿using MakersPortal.Core.Services;
+using MakersPortal.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace MakersPortal.WebApi
+namespace MakersPortal.WebApi.Options
 {
     public class ConfigureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
     {
         private readonly IKeyManager _keyManager;
-        private readonly JwtIssuerDto _issuer;
+        private readonly JwtIssuerOptions _issuer;
 
-        public ConfigureJwtBearerOptions(IKeyManager keyManager, JwtIssuerDto issuer)
+        public ConfigureJwtBearerOptions(IKeyManager keyManager, IOptions<JwtIssuerOptions> issuer)
         {
             _keyManager = keyManager;
-            _issuer = issuer;
+            _issuer = issuer.Value;
         }
 
         public void Configure(JwtBearerOptions options)

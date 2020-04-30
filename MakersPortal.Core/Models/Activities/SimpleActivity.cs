@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MakersPortal.Core.Enums;
 
 namespace MakersPortal.Core.Models.Activities
 {

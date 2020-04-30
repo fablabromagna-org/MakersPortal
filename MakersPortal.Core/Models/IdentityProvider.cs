@@ -1,6 +1,6 @@
-﻿namespace MakersPortal.Core.Dtos.Configuration
+﻿namespace MakersPortal.Core.Models
 {
-    public class IdentityProviderDto
+    public class IdentityProvider
     {
         public string Name { get; set; }
 

@@ -1,4 +1,4 @@
-﻿namespace MakersPortal.Core
+﻿namespace MakersPortal.Core.Enums
 {
     public enum SimpleActivityStatus
     {

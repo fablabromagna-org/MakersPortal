@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using MakersPortal.Core.Dtos;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.Core.Services

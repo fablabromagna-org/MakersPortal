@@ -16,7 +16,7 @@ namespace MakersPortal.Tests.Integration
         [Fact]
         public void EnsureKeyManagerIsRegistered_Success()
         {
-            IKeyManager keyManager = _testsFixture.Server.Services.GetService<IKeyManager>();
+            var keyManager = _testsFixture.Server.Services.GetService<IKeyManager>();
             Assert.NotNull(keyManager);
         }
     }

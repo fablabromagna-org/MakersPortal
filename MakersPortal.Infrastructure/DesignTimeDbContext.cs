@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace MakersPortal.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
     public abstract class DesignTimeDbContext<TContext> : IDesignTimeDbContextFactory<TContext>
         where TContext : DbContext
     {

@@ -1,11 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using MakersPortal.Core.Dtos;
-using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
+using MakersPortal.WebApi.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.WebApi.Controllers
 {
@@ -18,17 +16,21 @@ namespace MakersPortal.WebApi.Controllers
 
         public AuthController(IKeyManager keyManager /* IUserService userService */)
         {
+            Debug.Assert(keyManager != null);
+
             _userService = null;
             _keyManager = keyManager;
         }
-
-        [AllowAnonymous]
-        [Route("/Login")]
+        
         [HttpPost]
+        [Route("/Login")]
+        [Authorize(Policy = PoliciesConstants.EXTERNAL_IDP_ONLY_POLICY)]
         public IActionResult Login([FromBody] JwtTokenDto token)
         {
+            return Ok(new ContentResult() {Content = "Ciao"});
+            /*
             SecurityToken validatedToken;
-
+            
             if (!_userService.ValidateExternalJwtToken(token, out validatedToken))
                 return Unauthorized();
 
@@ -43,6 +45,7 @@ namespace MakersPortal.WebApi.Controllers
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
             });
+            */
         }
 
         [HttpGet]

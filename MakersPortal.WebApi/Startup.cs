@@ -1,41 +1,39 @@
 using System;
 using System.IO;
 using AutoMapper;
-using MakersPortal.Core.Dtos.Configuration;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure;
+using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using MakersPortal.WebApi.Authentication;
+using MakersPortal.WebApi.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.WebApi
 {
     public class Startup
     {
-        private static KeyVaultClient _keyVaultClient;
+        public IConfiguration Configuration { get; }
+        private readonly KeyVaultClient _keyVaultClient;
 
         public Startup(IHostEnvironment env, IConfiguration configuration)
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
 
             _keyVaultClient = new KeyVaultClient(
-                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider
-                    .KeyVaultTokenCallback));
+                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             var builder = new ConfigurationBuilder()
                 .AddConfiguration(configuration) // We need to override the DI configuration
@@ -55,12 +53,10 @@ namespace MakersPortal.WebApi
             Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<MakersPortalDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("mssql")));
+            services.AddDbContext<MakersPortalDbContext>();
+            services.ConfigureOptions<ConfigureDbContextOptionBuilder>();
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -68,33 +64,34 @@ namespace MakersPortal.WebApi
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton(provider => Configuration);
-            services.AddSingleton(Configuration.GetSection("JwtIssuer").Get<JwtIssuerDto>());
             services.AddSingleton<IKeyVaultClient>(_keyVaultClient);
             services.AddSingleton<IKeyManager, KeyManager>();
+            services.AddSingleton<IUserService, UserService>();
+
+            services.Configure<IdentityProvidersOptions>(Configuration);
+            services.Configure<ConnectionStringsOption>(Configuration.GetSection("ConnectionStrings"));
+            services.Configure<KeysOptions>(Configuration.GetSection("Keys"));
+            services.Configure<JwtIssuerOptions>(Configuration.GetSection("JwtIssuer"));
 
             #endregion
 
-            #region Identity Providers
+            #region Authentication and authorization
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(options => { options.User.RequireUniqueEmail = true; })
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<MakersPortalDbContext>()
                 .AddDefaultTokenProviders();
+            services.ConfigureOptions<ConfigureIdentityOptions>();
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer();
-            
+            services.AddAuthentication().AddJwtBearer();
+            services.ConfigureOptions<ConfigureAuthenticationOptions>();
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
+
+            services.AddAuthorization();
+            services.ConfigureOptions<ConfigureAuthorizationOptions>();
 
             #endregion
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            });
+            services.ConfigureOptions<ConfigureForwardedHeadersOptions>();
 
             services.AddControllers();
         }
@@ -117,7 +114,7 @@ namespace MakersPortal.WebApi
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "v1/{controller=Home}/{action=Index}/{id?}");
+                    pattern: "v1/{controller}/{action=Index}/{id?}");
             });
         }
     }

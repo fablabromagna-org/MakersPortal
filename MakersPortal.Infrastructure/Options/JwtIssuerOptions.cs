@@ -1,6 +1,6 @@
-﻿namespace MakersPortal.Core.Dtos.Configuration
+﻿﻿namespace MakersPortal.Infrastructure.Options
 {
-    public class JwtIssuerDto
+    public class JwtIssuerOptions
     {
         public string Issuer { get; set; }
         

@@ -25,26 +25,32 @@ namespace MakersPortal.Tests
 
         public TestsFixture()
         {
-            Server = new TestServer(new WebHostBuilder().UseStartup<Startup>().ConfigureAppConfiguration((context,
-                builder) =>
-            {
-                var testIdp = new Dictionary<string, string>()
+            Server = new TestServer(new WebHostBuilder().UseStartup<Startup>()
+                .ConfigureAppConfiguration((context, builder) =>
                 {
-                    {"IdentityProviders:0:Name", "Testing"},
-                    {"IdentityProviders:0:Issuer", "https://example.com"},
-                    {"IdentityProviders:0:Audience", "https://example.com"},
-                    {"IdentityProviders:0:SkipValidation", "true"}
-                };
+                    var testIdp = new Dictionary<string, string>()
+                    {
+                        {"IdentityProviders:0:Name", "Testing"},
+                        {"IdentityProviders:0:Issuer", "https://example.com"},
+                        {"IdentityProviders:0:Audience", "https://client.example.com"},
+                        {"IdentityProviders:0:SkipValidation", "true"},
 
-                builder.AddInMemoryCollection(testIdp);
+                        {
+                            "ConnectionStrings:mssql",
+                            "Connection Type=Memory;Initial Catalog=testing;User=whoami;Password=mysupersecretpassword;"
+                        }
+                    };
 
-                IdentityModelEventSource.ShowPII = true;
-            }));
+                    builder.AddInMemoryCollection(testIdp);
+
+                    IdentityModelEventSource.ShowPII = true;
+                }));
 
             Client = Server.CreateClient();
         }
 
-        public string GetJwt(string sub = null, string givenName = null, string familyName = null, string email = null)
+        public string GetJwt(string sub = null, string givenName = null, string familyName = null,
+            string email = null, string audience = null, string issuer = null)
         {
             if (string.IsNullOrWhiteSpace(sub))
                 sub = "2bff865f-0c95-4a3a-a12f-3b3f0743d279";
@@ -58,6 +64,12 @@ namespace MakersPortal.Tests
             if (string.IsNullOrWhiteSpace(email))
                 email = "john.smith@acme.com";
 
+            if (string.IsNullOrWhiteSpace(audience))
+                audience = "https://client.example.com";
+
+            if (string.IsNullOrWhiteSpace(issuer))
+                issuer = "https://account.example.com";
+
             SigningCredentials signingCredentials =
                 new SigningCredentials(_jwtSecurityKey, SecurityAlgorithms.HmacSha256Signature);
 
@@ -65,14 +77,14 @@ namespace MakersPortal.Tests
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, sub),
+                    new Claim(ClaimTypes.NameIdentifier, sub),
                     new Claim(ClaimTypes.GivenName, givenName),
                     new Claim(ClaimTypes.Surname, familyName),
                     new Claim(ClaimTypes.Email, email)
                 }),
                 Expires = DateTime.UtcNow.AddYears(1),
-                Issuer = "example.com",
-                Audience = "https://example.com",
+                Issuer = issuer,
+                Audience = audience,
                 SigningCredentials = signingCredentials
             };
 
