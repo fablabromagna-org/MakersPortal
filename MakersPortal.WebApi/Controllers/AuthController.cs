@@ -7,25 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MakersPortal.WebApi.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class AuthController : Controller
+    public class AuthController : BaseApiController
     {
         private readonly IUserService _userService;
         private readonly IKeyManager _keyManager;
 
-        public AuthController(IKeyManager keyManager /* IUserService userService */)
+        public AuthController(IKeyManager keyManager, IUserService userService)
         {
             Debug.Assert(keyManager != null);
+            Debug.Assert(userService != null);
 
-            _userService = null;
+            _userService = userService;
             _keyManager = keyManager;
         }
         
-        [HttpPost]
-        [Route("/Login")]
+        [HttpGet]
         [Authorize(Policy = PoliciesConstants.EXTERNAL_IDP_ONLY_POLICY)]
-        public IActionResult Login([FromBody] JwtTokenDto token)
+        public IActionResult Login()
         {
             return Ok(new ContentResult() {Content = "Ciao"});
             /*
@@ -46,16 +44,6 @@ namespace MakersPortal.WebApi.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
             });
             */
-        }
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult Index()
-        {
-            return Ok(new ContentResult
-            {
-                Content = "Hello, World."
-            });
         }
     }
 }

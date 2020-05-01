@@ -1,4 +1,6 @@
-﻿using MakersPortal.Core.Dtos;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
+using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,9 +12,8 @@ namespace MakersPortal.Core.Services
         /// Verifies against every configured Identity Provider the Jwt Token
         /// </summary>
         /// <param name="tokenDto">The Dto of the token</param>
-        /// <param name="externalIdpValidatedToken">The validated token (if trusted by one of the Idps)</param>
-        /// <returns>False if none of the configured Identity Providers trusts the identity, True otherwise</returns>
-        public bool ValidateExternalJwtToken(JwtTokenDto tokenDto, out SecurityToken externalIdpValidatedToken);
+        /// <returns>Null if none of the configured Identity Providers trusts the identity, the validated token otherwise</returns>
+        public Task<JwtSecurityToken> ValidateExternalJwtToken(JwtTokenDto tokenDto);
 
         /// <summary>
         /// Find a user from the email address in the Jwt token

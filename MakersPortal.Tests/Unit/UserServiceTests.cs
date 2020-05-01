@@ -1,6 +1,10 @@
+using System.Linq;
+using System.Security.Claims;
 using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
+using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace MakersPortal.Tests.Unit
@@ -13,30 +17,37 @@ namespace MakersPortal.Tests.Unit
         public UserServiceTests(TestsFixture fixture)
         {
             _fixture = fixture;
-            _userService = new UserService(new[]
+
+            var idpOptions = Options.Create(new IdentityProvidersOptions()
             {
-                new IdentityProvider
+                IdentityProviders = new []
                 {
-                    Audience = "https://client.example.com",
-                    Issuer = "https://account.example.com",
-                    Name = "sample-idp",
-                    SkipValidation = true
+                    new IdentityProvider
+                    {
+                        Audience = "https://client.example.com",
+                        Issuer = "https://account.example.com",
+                        SkipValidation = true
+                    }
                 }
             });
+            _userService = new UserService(idpOptions);
         }
 
         [Fact]
-        public void ValidateExternalJwtToken_Success_WhenTokenIsValid()
+        public async void ValidateExternalJwtToken_Success_WhenTokenIsValid()
         {
+            string familyName = "Edoardo";
             var jwtDto = new JwtTokenDto
             {
-                Token = _fixture.GetJwt()
+                Token = _fixture.GetJwt(familyName: familyName)
             };
 
-            Assert.True(_userService.ValidateExternalJwtToken(jwtDto, out var validatedToken));
-            
-            // It's useless checking the result, if we will do that we will test Microsoft's validator
-            Assert.NotNull(validatedToken);
+            var token = await _userService.ValidateExternalJwtToken(jwtDto);
+            Assert.NotNull(token);
+
+            Claim givenNameClaim = token.Claims.First(p => p.Type ==  ClaimTypes.GivenName);
+            string givenName = givenNameClaim?.Value ?? "";
+            Assert.Equal(familyName, givenName);
         }
     }
 }

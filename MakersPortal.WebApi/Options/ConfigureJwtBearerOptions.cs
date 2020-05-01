@@ -1,4 +1,7 @@
-﻿using MakersPortal.Core.Services;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -13,28 +16,40 @@ namespace MakersPortal.WebApi.Options
 
         public ConfigureJwtBearerOptions(IKeyManager keyManager, IOptions<JwtIssuerOptions> issuer)
         {
+            Debug.Assert(keyManager != null);
+            Debug.Assert(issuer != null);
+
             _keyManager = keyManager;
             _issuer = issuer.Value;
         }
 
         public void Configure(JwtBearerOptions options)
         {
+            var key = Task.Run(async () => await _keyManager.GetSecurityKeyFromName("Jwt"))
+                .GetAwaiter().GetResult();
+
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _keyManager.GetSecurityKeyFromName("jwt").Result,
+                IssuerSigningKey = key,
 
                 ValidIssuer = _issuer.Issuer,
-                ValidateIssuer = true
+                ValidateIssuer = true,
+
+                ClockSkew = new TimeSpan(TimeSpan.Zero.Seconds)
             };
 
             options.Audience = _issuer.Audience;
-            options.SaveToken = true;
         }
 
         public void Configure(string name, JwtBearerOptions options)
         {
-            Configure(options);
+            if (name == JwtBearerDefaults.AuthenticationScheme)
+                Configure(options);
+
+            else
+            {
+            }
         }
     }
 }

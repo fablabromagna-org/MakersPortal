@@ -1,9 +1,9 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Text;
+using System.Security.Cryptography;
 using MakersPortal.WebApi;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -17,11 +17,8 @@ namespace MakersPortal.Tests
     {
         public readonly HttpClient Client;
         public readonly TestServer Server;
-
-        // Random (and not secure) Jwt security key
-        // For testing purpose only
-        private readonly SymmetricSecurityKey _jwtSecurityKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()));
+        
+        private readonly RsaSecurityKey _jwtSecurityKey = null;
 
         public TestsFixture()
         {
@@ -47,6 +44,9 @@ namespace MakersPortal.Tests
                 }));
 
             Client = Server.CreateClient();
+            
+            _jwtSecurityKey = new RsaSecurityKey(RSA.Create(2048));
+            _jwtSecurityKey.KeyId = "000132c6-b5eb-4c7b-9be0-f3a2825fac99";
         }
 
         public string GetJwt(string sub = null, string givenName = null, string familyName = null,
@@ -71,7 +71,7 @@ namespace MakersPortal.Tests
                 issuer = "https://account.example.com";
 
             SigningCredentials signingCredentials =
-                new SigningCredentials(_jwtSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+                new SigningCredentials(_jwtSecurityKey, SecurityAlgorithms.RsaSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

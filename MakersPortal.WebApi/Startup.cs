@@ -67,7 +67,7 @@ namespace MakersPortal.WebApi
             services.AddSingleton<IKeyVaultClient>(_keyVaultClient);
             services.AddSingleton<IKeyManager, KeyManager>();
             services.AddSingleton<IUserService, UserService>();
-
+            
             services.Configure<IdentityProvidersOptions>(Configuration);
             services.Configure<ConnectionStringsOption>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<KeysOptions>(Configuration.GetSection("Keys"));
@@ -82,9 +82,12 @@ namespace MakersPortal.WebApi
                 .AddDefaultTokenProviders();
             services.ConfigureOptions<ConfigureIdentityOptions>();
 
-            services.AddAuthentication().AddJwtBearer();
-            services.ConfigureOptions<ConfigureAuthenticationOptions>();
+            var authenticationBuilder = services.AddAuthentication();
+            authenticationBuilder 
+                .AddJwtBearer()
+                .AddExternalIdentityProviders(Configuration.Get<IdentityProvidersOptions>().IdentityProviders);
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
+            services.ConfigureOptions<ConfigureAuthenticationOptions>();
 
             services.AddAuthorization();
             services.ConfigureOptions<ConfigureAuthorizationOptions>();
@@ -110,12 +113,7 @@ namespace MakersPortal.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "v1/{controller}/{action=Index}/{id?}");
-            });
+            app.UseEndpoints(builder => builder.MapControllers());
         }
     }
 }

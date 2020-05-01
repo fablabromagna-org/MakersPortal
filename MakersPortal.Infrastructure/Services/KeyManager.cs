@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure.Options;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Rest.Azure;
@@ -26,21 +26,29 @@ namespace MakersPortal.Infrastructure.Services
 
         public KeyManager(IOptions<KeysOptions> keys, IKeyVaultClient keyVaultClient)
         {
+            Debug.Assert(keys != null);
+            Debug.Assert(keyVaultClient != null);
+
             _keys = keys.Value;
             _keyVaultClient = keyVaultClient;
         }
-        
+
         /// <inheritdoc cref="IKeyManager"/>
         public async Task<RsaSecurityKey> GetSecurityKeyFromName(string name)
         {
-            return new RsaSecurityKey(await GetKey(name));
+            RSA key = await GetKey(name);
+            var securityKey = new RsaSecurityKey(key);
+
+            securityKey.KeyId = _keys[name].Kid;
+            
+            return securityKey;
         }
 
         private async Task<RSA> GetKey(string name)
         {
             string keyVaultEndopoint = Environment.GetEnvironmentVariable("KEYVAULT_ENDPOINT");
             RSA key;
-            
+
             if (keyVaultEndopoint != null)
             {
                 AzureOperationResponse<KeyBundle> keyBundleResponse =
