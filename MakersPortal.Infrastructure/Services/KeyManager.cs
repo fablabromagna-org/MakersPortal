@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using MakersPortal.Core.Services;
@@ -13,28 +14,25 @@ using Microsoft.Rest.Azure;
 
 namespace MakersPortal.Infrastructure.Services
 {
-    // ToDo: Find a way to test IKeyManager interface
-    // IKeyManager is a wrapper for Azure Key Vault and,
-    // when in the testing environment, for secret manager
-    // Due its own nature, it's difficult to test
-    // Keeping a To do but excluding from code coverage
-    [ExcludeFromCodeCoverage]
     public class KeyManager : IKeyManager
     {
+        private readonly AzureKeyVaultOptions _keyVaultOptions;
         private readonly KeysOptions _keys;
         private readonly IKeyVaultClient _keyVaultClient;
 
-        public KeyManager(IOptions<KeysOptions> keys, IKeyVaultClient keyVaultClient)
+        public KeyManager(IOptions<AzureKeyVaultOptions> keyVaultOptions, IOptions<KeysOptions> keys, IKeyVaultClient keyVaultClient)
         {
+            Debug.Assert(keyVaultOptions != null);
             Debug.Assert(keys != null);
             Debug.Assert(keyVaultClient != null);
 
+            _keyVaultOptions = keyVaultOptions.Value;
             _keys = keys.Value;
             _keyVaultClient = keyVaultClient;
         }
 
         /// <inheritdoc cref="IKeyManager"/>
-        public async Task<RsaSecurityKey> GetSecurityKeyFromName(string name)
+        public async Task<RsaSecurityKey> GetSecurityKeyFromNameAsync(string name)
         {
             RSA key = await GetKey(name);
             var securityKey = new RsaSecurityKey(key);
@@ -42,6 +40,14 @@ namespace MakersPortal.Infrastructure.Services
             securityKey.KeyId = _keys[name].Kid;
             
             return securityKey;
+        }
+
+        /// <inheritdoc cref="IKeyManager"/>
+        public Task<string> SignJwtAsync(IEnumerable<Claim> claims, string issuer, string audience)
+        {
+            string keyVaultEndopoint = Environment.GetEnvironmentVariable("KEYVAULT_ENDPOINT");
+           // _keyVaultClient.SignAsync(keyVaultEndopoint, "Jwt", _keys["Jwt"].Version, SecurityAlgorithms.Sha256, )
+           return Task.FromResult("");
         }
 
         private async Task<RSA> GetKey(string name)
@@ -65,5 +71,12 @@ namespace MakersPortal.Infrastructure.Services
 
             return key;
         }
+
+        private string CreateJwtHeaders(string algorithm, string kid)
+        {
+            return String.Empty;
+        }
+        
+        
     }
 }

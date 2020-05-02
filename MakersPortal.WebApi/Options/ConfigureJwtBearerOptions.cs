@@ -25,7 +25,7 @@ namespace MakersPortal.WebApi.Options
 
         public void Configure(JwtBearerOptions options)
         {
-            var key = Task.Run(async () => await _keyManager.GetSecurityKeyFromName("Jwt"))
+            var key = Task.Run(async () => await _keyManager.GetSecurityKeyFromNameAsync("Jwt"))
                 .GetAwaiter().GetResult();
 
             options.TokenValidationParameters = new TokenValidationParameters

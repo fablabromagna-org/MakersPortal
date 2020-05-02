@@ -72,6 +72,7 @@ namespace MakersPortal.WebApi
             services.Configure<ConnectionStringsOption>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<KeysOptions>(Configuration.GetSection("Keys"));
             services.Configure<JwtIssuerOptions>(Configuration.GetSection("JwtIssuer"));
+            services.Configure<AzureKeyVaultOptions>(Configuration.GetSection("AzureKeyVault"));
 
             #endregion
 
@@ -83,8 +84,7 @@ namespace MakersPortal.WebApi
             services.ConfigureOptions<ConfigureIdentityOptions>();
 
             var authenticationBuilder = services.AddAuthentication();
-            authenticationBuilder 
-                .AddJwtBearer()
+            authenticationBuilder.AddJwtBearer()
                 .AddExternalIdentityProviders(Configuration.Get<IdentityProvidersOptions>().IdentityProviders);
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
             services.ConfigureOptions<ConfigureAuthenticationOptions>();

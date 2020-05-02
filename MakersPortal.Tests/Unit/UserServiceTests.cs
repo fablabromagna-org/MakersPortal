@@ -1,53 +1,46 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using Bogus;
 using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
 using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace MakersPortal.Tests.Unit
 {
     public class UserServiceTests : IClassFixture<TestsFixture>
     {
-        private readonly TestsFixture _fixture;
+        private readonly Faker _faker;
         private readonly UserService _userService;
+        private readonly Mock<UserManager<ApplicationUser>> _userManager;
 
-        public UserServiceTests(TestsFixture fixture)
+        public UserServiceTests()
         {
-            _fixture = fixture;
+            _faker = new Faker();
 
-            var idpOptions = Options.Create(new IdentityProvidersOptions()
-            {
-                IdentityProviders = new []
-                {
-                    new IdentityProvider
-                    {
-                        Audience = "https://client.example.com",
-                        Issuer = "https://account.example.com",
-                        SkipValidation = true
-                    }
-                }
-            });
-            _userService = new UserService(idpOptions);
-        }
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var optionsAccessor = new Mock<IOptions<IdentityOptions>>();
+            var passwordHasher = new Mock<IPasswordHasher<ApplicationUser>>();
+            var keyNormalizer = new Mock<ILookupNormalizer>();
+            var identityErrorDescriber = new Mock<IdentityErrorDescriber>();
+            var serviceProvider = new Mock<IServiceProvider>();
+            var logger = new Mock<ILogger<UserManager<ApplicationUser>>>();
 
-        [Fact]
-        public async void ValidateExternalJwtToken_Success_WhenTokenIsValid()
-        {
-            string familyName = "Edoardo";
-            var jwtDto = new JwtTokenDto
-            {
-                Token = _fixture.GetJwt(familyName: familyName)
-            };
-
-            var token = await _userService.ValidateExternalJwtToken(jwtDto);
-            Assert.NotNull(token);
-
-            Claim givenNameClaim = token.Claims.First(p => p.Type ==  ClaimTypes.GivenName);
-            string givenName = givenNameClaim?.Value ?? "";
-            Assert.Equal(familyName, givenName);
+            _userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, optionsAccessor.Object,
+                passwordHasher.Object, new IUserValidator<ApplicationUser>[0],
+                new IPasswordValidator<ApplicationUser>[0], keyNormalizer.Object, identityErrorDescriber.Object,
+                serviceProvider.Object, logger.Object);
+            
+            _userManager.Setup(userManager => userManager.FindByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(new ApplicationUser());
+            //_userService = new UserService(_userManager.Object);
         }
     }
 }
