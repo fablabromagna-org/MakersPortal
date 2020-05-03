@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using MakersPortal.Core.Models;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.Core.Services
 {

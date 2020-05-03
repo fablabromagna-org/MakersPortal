@@ -26,14 +26,15 @@ namespace MakersPortal.WebApi
     public class Startup
     {
         public IConfiguration Configuration { get; }
+        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
         private readonly KeyVaultClient _keyVaultClient;
 
         public Startup(IHostEnvironment env, IConfiguration configuration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            _azureServiceTokenProvider = new AzureServiceTokenProvider();
 
             _keyVaultClient = new KeyVaultClient(
-                new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                new KeyVaultClient.AuthenticationCallback(_azureServiceTokenProvider.KeyVaultTokenCallback));
 
             var builder = new ConfigurationBuilder()
                 .AddConfiguration(configuration) // We need to override the DI configuration
@@ -67,7 +68,8 @@ namespace MakersPortal.WebApi
             services.AddSingleton<IKeyVaultClient>(_keyVaultClient);
             services.AddSingleton<IKeyManager, KeyManager>();
             services.AddSingleton<IUserService, UserService>();
-            
+            services.AddSingleton(_azureServiceTokenProvider);
+
             services.Configure<IdentityProvidersOptions>(Configuration);
             services.Configure<ConnectionStringsOption>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<KeysOptions>(Configuration.GetSection("Keys"));

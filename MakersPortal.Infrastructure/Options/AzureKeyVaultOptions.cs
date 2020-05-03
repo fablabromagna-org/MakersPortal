@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace MakersPortal.Infrastructure.Options
+﻿namespace MakersPortal.Infrastructure.Options
 {
     public class AzureKeyVaultOptions
     {

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.Infrastructure.Services
 {

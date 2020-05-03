@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +16,7 @@ namespace MakersPortal.Core.Services
         /// <returns>The public key</returns>
         public Task<RsaSecurityKey> GetSecurityKeyFromNameAsync(string name);
 
-        public Task<string> SignJwtAsync(IEnumerable<Claim> claims, string issuer, string audience);
+        public Task<string> SignJwtAsync(IEnumerable<Claim> claims, string issuer, string audience, DateTime notBefore,
+            DateTime expires);
     }
 }

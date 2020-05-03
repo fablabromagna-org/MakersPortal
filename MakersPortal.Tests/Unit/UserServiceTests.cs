@@ -1,11 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using Bogus;
-using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
-using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

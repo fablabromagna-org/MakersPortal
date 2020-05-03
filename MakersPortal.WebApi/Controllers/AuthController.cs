@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using MakersPortal.Core.Dtos;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using MakersPortal.WebApi.Constants;
@@ -12,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MakersPortal.WebApi.Controllers
 {
