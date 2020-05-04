@@ -11,7 +11,6 @@ using MakersPortal.Infrastructure.Options;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.KeyVaultExtensions;
 using Microsoft.IdentityModel.Tokens;
 using KeyVaultSecurityKey = MakersPortal.Infrastructure.AzureKeyVault.KeyVaultSecurityKey;
 

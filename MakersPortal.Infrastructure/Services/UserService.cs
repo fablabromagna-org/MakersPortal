@@ -1,8 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using MakersPortal.Core.Exceptions;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
+using MakersPortal.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace MakersPortal.Infrastructure.Services
 {
@@ -10,46 +19,50 @@ namespace MakersPortal.Infrastructure.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IKeyManager _keyManager;
-        
-        public UserService(UserManager<ApplicationUser> userManager, IKeyManager keyManager)
+        private readonly JwtIssuerOptions _issuerOptions;
+
+        public UserService(UserManager<ApplicationUser> userManager, IKeyManager keyManager,
+            IOptions<JwtIssuerOptions> issuerOptions)
         {
             Debug.Assert(userManager != null);
             Debug.Assert(keyManager != null);
+            Debug.Assert(issuerOptions != null);
 
             _userManager = userManager;
             _keyManager = keyManager;
+            _issuerOptions = issuerOptions.Value;
         }
 
         public async Task<string> CreateSessionAsync(ApplicationUser user)
         {
-            /*var roles = await _userManager.GetRolesAsync(user);
+            if (user == null)
+                throw new ArgumentNullException();
 
-            var claims = new List<Claim>()
+            var foundUser = await _userManager.FindByEmailAsync(user.Email);
+
+            if (foundUser == null)
+                throw new UserNotFoundException();
+
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.GivenName, user.GivenName),
-                new Claim(ClaimTypes.Surname, user.Surname),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim("email", foundUser.Email),
+                new Claim("given_name", foundUser.GivenName),
+                new Claim("family_name", foundUser.Surname),
+                new Claim("sub", foundUser.Id),
+                new Claim("name", foundUser.CommonName)
             };
+
+            IEnumerable<string> roles = await _userManager.GetRolesAsync(foundUser);
 
             foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                claims.Add(new Claim("roles", role));
             }
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(15),
-                Issuer = "",
-                Audience = ""
-            };
-            
-            
+            string token = await _keyManager.SignJwtAsync(claims, _issuerOptions.Issuer, _issuerOptions.Audience,
+                DateTime.Now, DateTime.Now.AddDays(7));
 
-            return handler.WriteToken(token);*/
-
-            return string.Empty;
+            return token;
         }
     }
 }
