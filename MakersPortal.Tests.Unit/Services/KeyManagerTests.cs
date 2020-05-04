@@ -17,7 +17,7 @@ using Moq;
 using Xunit;
 using JsonWebKey = Microsoft.Azure.KeyVault.WebKey.JsonWebKey;
 
-namespace MakersPortal.Tests.Unit
+namespace MakersPortal.Tests.Unit.Services
 {
     public class KeyManagerTests
     {

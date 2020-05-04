@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
-namespace MakersPortal.Tests.Unit
+namespace MakersPortal.Tests.Unit.Services
 {
     public class UserServiceTests
     {

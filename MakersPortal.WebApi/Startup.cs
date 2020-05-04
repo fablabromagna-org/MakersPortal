@@ -6,7 +6,6 @@ using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure;
 using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
-using MakersPortal.WebApi.Authentication;
 using MakersPortal.WebApi.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

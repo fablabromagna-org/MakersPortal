@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace MakersPortal.Tests.Integration
+namespace MakersPortal.Tests.Integration.Services
 {
     public class KeyManagerIntegrationTests : IClassFixture<TestsFixture>
     {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 
-namespace MakersPortal.WebApi.Authentication
+namespace MakersPortal.WebApi.Options
 {
     public class ConfigureAuthenticationOptions : IConfigureNamedOptions<AuthenticationOptions>
     {

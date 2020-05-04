@@ -10,7 +10,7 @@ using Microsoft.Rest.Azure;
 using Moq;
 using Xunit;
 
-namespace MakersPortal.Tests.Unit
+namespace MakersPortal.Tests.Unit.Services
 {
     public class KeyVaultSecurityKeyTests
     {

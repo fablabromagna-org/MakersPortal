@@ -20,6 +20,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Controllers" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MakersPortal.Core\MakersPortal.Core.csproj" />
       <ProjectReference Include="..\MakersPortal.WebApi\MakersPortal.WebApi.csproj" />
     </ItemGroup>
 
