@@ -15,20 +15,16 @@ namespace MakersPortal.WebApi.Controllers
     public class AuthController : BaseApiController
     {
         private readonly IUserService _userService;
-        private readonly IKeyManager _keyManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger _logger;
 
-        public AuthController(IKeyManager keyManager, IUserService userService,
-            UserManager<ApplicationUser> userManager, ILogger logger)
+        public AuthController(IUserService userService, UserManager<ApplicationUser> userManager, ILogger logger)
         {
-            Debug.Assert(keyManager != null);
             Debug.Assert(userService != null);
             Debug.Assert(userManager != null);
             Debug.Assert(logger != null);
 
             _userService = userService;
-            _keyManager = keyManager;
             _userManager = userManager;
             _logger = logger;
         }
@@ -62,6 +58,7 @@ namespace MakersPortal.WebApi.Controllers
             }
             else if (user.LockoutEnabled)
                 return new ForbidResult();
+
 /*
             string sessionToken = _userService.CreateSessionAsync(user);
 
