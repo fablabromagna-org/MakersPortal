@@ -1,4 +1,4 @@
-﻿namespace MakersPortal.Core.Models
+﻿namespace MakersPortal.Core.Pocos
 {
     public class IdentityProvider
     {

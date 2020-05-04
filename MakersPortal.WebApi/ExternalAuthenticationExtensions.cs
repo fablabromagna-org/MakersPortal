@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MakersPortal.Core.Models;
+using MakersPortal.Core.Pocos;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
