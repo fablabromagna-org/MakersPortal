@@ -20,7 +20,8 @@ namespace MakersPortal.WebApi.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger _logger;
 
-        public AuthController(IUserService userService, UserManager<ApplicationUser> userManager, ILogger logger)
+        public AuthController(IUserService userService, UserManager<ApplicationUser> userManager,
+            ILogger<AuthController> logger)
         {
             Debug.Assert(userService != null);
             Debug.Assert(userManager != null);
@@ -64,7 +65,7 @@ namespace MakersPortal.WebApi.Controllers
                 return new ForbidResult();
 
             var token = await _userService.CreateSessionAsync(user);
-            
+
             return Ok(new JwtTokenDto()
             {
                 Token = token

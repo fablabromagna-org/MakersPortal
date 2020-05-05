@@ -22,7 +22,7 @@ namespace MakersPortal.Tests.Unit.Controllers
         private readonly Faker _faker;
         private readonly ControllerContext _loginHttpContext;
         private readonly Mock<IUserService> _userService;
-        private readonly Mock<ILogger> _logger;
+        private readonly Mock<AbstractLogger<AuthController>> _logger;
         private readonly AuthController _controller;
         private readonly Mock<UserManager<ApplicationUser>> _userManager;
 
@@ -30,7 +30,7 @@ namespace MakersPortal.Tests.Unit.Controllers
         {
             _faker = new Faker();
 
-            _logger = new Mock<ILogger>();
+            _logger = new Mock<AbstractLogger<AuthController>>();
             _userService = new Mock<IUserService>();
 
             _loginHttpContext = new ControllerContext
@@ -88,11 +88,8 @@ namespace MakersPortal.Tests.Unit.Controllers
             _userManager.Setup(userManager => userManager.CreateAsync(It.IsAny<ApplicationUser>()))
                 .ReturnsAsync(IdentityResult.Failed());
 
-            const string testToken = "My Super Secret Jwt Token";
-            _userService.Setup(userService => userService.CreateSessionAsync(It.IsAny<ApplicationUser>()))
-                .ReturnsAsync(testToken);
-
             await Assert.ThrowsAsync<InternalServerErrorException>(async () => await _controller.Login());
+            _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<Exception>(), It.IsAny<string>()), Times.Once);
         }
 
         [Fact]
