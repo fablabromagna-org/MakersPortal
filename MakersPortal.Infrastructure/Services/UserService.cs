@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using MakersPortal.Core.Exceptions;
@@ -33,6 +30,9 @@ namespace MakersPortal.Infrastructure.Services
             _issuerOptions = issuerOptions.Value;
         }
 
+        /// <inheritdoc />
+        /// <exception cref="ArgumentNullException">if <paramref name="user"/> is null.</exception>
+        /// <exception cref="UserNotFoundException">if the user not exists.</exception>
         public async Task<string> CreateSessionAsync(ApplicationUser user)
         {
             if (user == null)

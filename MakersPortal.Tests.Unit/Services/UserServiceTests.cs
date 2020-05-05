@@ -10,8 +10,6 @@ using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using MakersPortal.Infrastructure.Options;
 using MakersPortal.Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -32,18 +30,7 @@ namespace MakersPortal.Tests.Unit.Services
         {
             _faker = new Faker();
 
-            var userStore = new Mock<IUserStore<ApplicationUser>>();
-            var optionsAccessor = new Mock<IOptions<IdentityOptions>>();
-            var passwordHasher = new Mock<IPasswordHasher<ApplicationUser>>();
-            var keyNormalizer = new Mock<ILookupNormalizer>();
-            var identityErrorDescriber = new Mock<IdentityErrorDescriber>();
-            var serviceProvider = new Mock<IServiceProvider>();
-            var logger = new Mock<ILogger<UserManager<ApplicationUser>>>();
-
-            var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, optionsAccessor.Object,
-                passwordHasher.Object, new IUserValidator<ApplicationUser>[0],
-                new IPasswordValidator<ApplicationUser>[0], keyNormalizer.Object, identityErrorDescriber.Object,
-                serviceProvider.Object, logger.Object);
+            var userManager = UserManagerUtilities.CreateMockedUserManager();
 
             _testUser = new ApplicationUser()
             {

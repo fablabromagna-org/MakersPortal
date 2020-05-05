@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using MakersPortal.Core.Models;
 using MakersPortal.Core.Pocos;
 using MakersPortal.Infrastructure.Options;
 using MakersPortal.WebApi.Constants;

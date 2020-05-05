@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using MakersPortal.Core.Models;
 using MakersPortal.Core.Pocos;
 
 namespace MakersPortal.Infrastructure.Options

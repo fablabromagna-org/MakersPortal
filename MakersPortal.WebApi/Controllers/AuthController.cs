@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using MakersPortal.Core.Dtos;
+using MakersPortal.Core.Exceptions.HttpExceptions;
 using MakersPortal.Core.Models;
 using MakersPortal.Core.Services;
 using MakersPortal.WebApi.Constants;
@@ -53,20 +55,20 @@ namespace MakersPortal.WebApi.Controllers
                 {
                     _logger.LogError(
                         $"Unable to create the user. Reasons: {result.Errors}. Request ID: {HttpContext.Connection.Id}");
-                    return Problem($"Unable to create the user. Request Id: {HttpContext.Connection.Id}");
+                    throw new InternalServerErrorException();
                 }
+
+                user = tmpUser;
             }
             else if (user.LockoutEnabled)
                 return new ForbidResult();
 
-/*
-            string sessionToken = _userService.CreateSessionAsync(user);
-
-            return Ok(new JwtTokenDto
+            var token = await _userService.CreateSessionAsync(user);
+            
+            return Ok(new JwtTokenDto()
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(sessionToken)
-            });*/
-            return Ok();
+                Token = token
+            });
         }
     }
 }

@@ -6,10 +6,10 @@ namespace MakersPortal.Core.Services
     public interface IUserService
     {
         /// <summary>
-        /// Creates a new session for the provided user
+        /// Creates a new session to the specified user
         /// </summary>
-        /// <param name="user">The internal user</param>
-        /// <returns>The encoded Jwt</returns>
+        /// <param name="user">the user you want create a new session</param>
+        /// <returns>the Jwt token</returns>
         public Task<string> CreateSessionAsync(ApplicationUser user);
     }
 }

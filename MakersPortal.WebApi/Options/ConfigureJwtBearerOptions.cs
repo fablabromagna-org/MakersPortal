@@ -46,10 +46,6 @@ namespace MakersPortal.WebApi.Options
         {
             if (name == JwtBearerDefaults.AuthenticationScheme)
                 Configure(options);
-
-            else
-            {
-            }
         }
     }
 }
