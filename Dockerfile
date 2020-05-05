@@ -6,6 +6,8 @@ EXPOSE 80
 COPY ./MakersPortal.sln ./MakersPortal.sln
 COPY ./MakersPortal.Core/MakersPortal.Core.csproj ./MakersPortal.Core/MakersPortal.Core.csproj
 COPY ./MakersPortal.Infrastructure/MakersPortal.Infrastructure.csproj ./MakersPortal.Infrastructure/MakersPortal.Infrastructure.csproj
+COPY ./MakersPortal.Tests.Unit/MakersPortal.Tests.Unit.csproj ./MakersPortal.Tests.Unit/MakersPortal.Tests.Unit.csproj
+COPY ./MakersPortal.Tests.Integration/MakersPortal.Tests.Integration.csproj ./MakersPortal.Tests.Integration/MakersPortal.Tests.Integration.csproj
 COPY ./MakersPortal.WebApi/MakersPortal.WebApi.csproj ./MakersPortal.WebApi/MakersPortal.WebApi.csproj
 RUN dotnet restore
 
