@@ -92,36 +92,16 @@ namespace MakersPortal.Tests.Unit.Services
             Assert.Equal(_keysOptions.Jwt.Kid, response.KeyId);
         }
 
-        [Fact]
-        public async void SignJwtAsync_Success_FromLocalEnvironment()
-        {
-            var keyVaultOptions = new AzureKeyVaultOptions
-            {
-                Endpoint = null
-            };
-
-            var keyVaultClient = new Mock<IKeyVaultClient>();
-
-            IKeyManager keyManager = new KeyManager(Options.Create(keyVaultOptions), Options.Create(_keysOptions),
-                keyVaultClient.Object);
-
-            var jwt = BuildClaims();
-
-            string signedToken = await keyManager.SignJwtAsync(claims: BuildClaims(), issuer: "https://example.com",
-                audience: "https://client.example.com", notBefore: DateTime.Now, expires: DateTime.Now.AddDays(15));
-
-            Assert.NotNull(signedToken);
-            Assert.NotEmpty(signedToken);
-        }
-
-        [Fact]
-        public async void SignJwtAsync_Success_FromAzureKeyVault()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("https://exampleendopoint.com")]
+        public async void SignJwtAsync_Success_NoCondition(string endpoint)
         {
             IdentityModelEventSource.ShowPII = true;
             var faker = new Faker();
             var keyVaultOptions = new AzureKeyVaultOptions
             {
-                Endpoint = faker.Internet.Url()
+                Endpoint = endpoint
             };
 
             var keyVaultClient = new Mock<IKeyVaultClient>();
