@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace MakersPortal.Tests.Unit
 {
     [ExcludeFromCodeCoverage]
-    public abstract class AbstractLogger<T> : ILogger<T>
+    public abstract class AbstractLogger<T> : ILogger<T> where T : class
     {
         public IDisposable BeginScope<TState>(TState state)
             => throw new NotImplementedException();

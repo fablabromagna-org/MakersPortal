@@ -19,7 +19,6 @@ namespace MakersPortal.Tests.Unit.Controllers
 {
     public class AuthControllerTests
     {
-        private readonly Faker _faker;
         private readonly ControllerContext _loginHttpContext;
         private readonly Mock<IUserService> _userService;
         private readonly Mock<AbstractLogger<AuthController>> _logger;
@@ -28,7 +27,7 @@ namespace MakersPortal.Tests.Unit.Controllers
 
         public AuthControllerTests()
         {
-            _faker = new Faker();
+            var faker = new Faker();
 
             _logger = new Mock<AbstractLogger<AuthController>>();
             _userService = new Mock<IUserService>();
@@ -39,9 +38,9 @@ namespace MakersPortal.Tests.Unit.Controllers
                 {
                     User = new ClaimsPrincipal(new ClaimsIdentity(new[]
                     {
-                        new Claim(ClaimTypes.Email, _faker.Person.Email),
-                        new Claim(ClaimTypes.GivenName, _faker.Person.FirstName),
-                        new Claim(ClaimTypes.Surname, _faker.Person.LastName),
+                        new Claim(ClaimTypes.Email, faker.Person.Email),
+                        new Claim(ClaimTypes.GivenName, faker.Person.FirstName),
+                        new Claim(ClaimTypes.Surname, faker.Person.LastName),
                         new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
                     }))
                 }
